@@ -1,0 +1,23 @@
+{
+    "name": "bashka/bricks_storage_relation_mapper",
+    "version": "1.0",
+    "description": "Объектно-реляционное преобразование данных",
+    "license": "GNU-3.0",
+    "authors": [
+        {
+            "name": "Artur Sh. Mamedbekov",
+            "email": "Artur-Mamedbekov@yandex.ru"
+        }
+    ],
+    "require": {
+      "php": ">=5.5.0"
+    },
+    "autoload": {
+      "classmap": [
+        "Mapper.php",
+        "Entity.php",
+        "SchemeException.php",
+        "UniquenessException.php"
+      ]
+    }
+}
