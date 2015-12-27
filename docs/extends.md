@@ -43,6 +43,7 @@ class UserMapper extends Mapper{
       'id' => 'id',
       'login' => 'login',
     ]);
+    $this->prototype('User');
   }
 }
 
@@ -53,6 +54,7 @@ class MessageMapper extends Mapper{
       'user' => 'user_id',
       'message' => 'message',
     ]);
+    $this->prototype('Message');
   }
 }
 ```
