@@ -149,7 +149,15 @@ class Mapper{
       throw new \PDOException($selectStatement->errorInfo(), $selectStatement->errorCode());
     }
 
-    return $selectStatement->fetchAll();
+    $entities = $selectStatement->fetchAll();
+
+    if(is_subclass_of($this->prototype, 'Bricks\Storage\Relation\Mapper\RelatedEntity')){
+      foreach($entities as $entity){
+        $entity->setSaveStatement($this->updateStatement);
+      }
+    }
+    
+    return $entities;
   }
 
   /**
@@ -265,6 +273,10 @@ class Mapper{
     }
     elseif($this->fetchStatement->rowCount() == 1){
       $entity = $this->fetchStatement->fetchObject($this->prototype);
+      if(is_subclass_of($this->prototype, 'Bricks\Storage\Relation\Mapper\RelatedEntity')){
+        $entity->setSaveStatement($this->updateStatement);
+      }
+
       $this->fetchStatement->closeCursor();
 
       return $entity;

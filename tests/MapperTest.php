@@ -4,6 +4,7 @@ require_once('Mapper.php');
 require_once('SchemeException.php');
 require_once('UniquenessException.php');
 require_once('tests/EntityMock.php');
+require_once('tests/RelatedEntityMock.php');
 
 /**
  * @author Artur Sh. Mamedbekov
@@ -125,6 +126,35 @@ class MapperTest extends \PHPUnit_Framework_TestCase{
       ->will($this->returnValue(2));
 
     $this->mapper->fetch(1);
+  }
+
+  /**
+   * Должен устанавливать выражение для сохранения RelatedEntity.
+   */
+  public function testFetch_setSaveStatement(){
+    $this->mapper->prototype('Bricks\Storage\Relation\Mapper\RelatedEntityMock');
+    
+    $this->fetchStatement->expects($this->once())
+      ->method('execute')
+      ->with($this->equalTo(['id' => 1]))
+      ->will($this->returnValue(true));
+
+    $this->fetchStatement->expects($this->any())
+      ->method('rowCount')
+      ->will($this->returnValue(1));
+
+    $entity = $this->getMock('Bricks\Storage\Relation\Mapper\RelatedEntity');
+
+    $this->fetchStatement->expects($this->once())
+      ->method('fetchObject')
+      ->with($this->equalTo('Bricks\Storage\Relation\Mapper\RelatedEntityMock'))
+      ->will($this->returnValue($entity));
+
+    $entity->expects($this->once())
+      ->method('setSaveStatement')
+      ->with($this->equalTo($this->updateStatement));
+
+    $this->assertEquals($entity, $this->mapper->fetch(1));
   }
 
   /**
