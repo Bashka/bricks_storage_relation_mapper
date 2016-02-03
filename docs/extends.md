@@ -11,6 +11,9 @@
 - `select(condition, params)` - выполнение SQL запроса для восстановления 
   массива сущностей с использованием данного условия. Условие предварительно 
   конвертируется методом _convert_ и кэшируется
+- `count(condition, params)` - выполнение SQL запроса для получения числа строк, 
+  соответствующих данному условию. Условие предварительно конвертируется методов 
+  _convert_ и кэшируется
 
 Далее приведены несколько примеров расширения класса _Mapper_ для реализации 
 различных механизмов доступа к данным. Все примеры используют следующие 
@@ -95,6 +98,24 @@ $user = $mapper->fetch(5);
 
 $mapper = new MessageMapper(...);
 $messages = $mapper->fetchFromLogin($user->login);
+```
+
+## Получение числа сущностей
+
+```php
+class MessageMapper extends Mapper{
+  ...
+
+  public function countMessagesOfOwner($userId){
+    return $this->count('WHERE !user > ?', [$userId]);
+  }
+}
+
+$mapper = new UserMapper(...);
+$user = $mapper->fetch(5);
+
+$mapper = new MessageMapper(...);
+$count = $mapper->countMessagesOfOwner($user->id);
 ```
 
 ## Пагинация

@@ -36,6 +36,13 @@ class Mapper{
   private $selectSql;
 
   /**
+   * @var string SQL выражение, используемое для вычисления количества строк, 
+   * затрагиваемых данным условием отбора.
+   * SELECT COUNT(*) FROM table
+   */
+  private $countSql;
+
+  /**
    * @var \PDOStatement[] Кэш используемых SQL запросов.
    */
   private $selectStatements;
@@ -161,6 +168,36 @@ class Mapper{
   }
 
   /**
+   * Получить число строк, затронутых условием отбора.
+   * Используемые SQL запросы кэшируются.
+   *
+   * @param string $condition Условие отбора, в которое могут входить операции 
+   * WHERE, LIMIT, GROUP, ORDER и т.д. Строка предварительно конвертируется с 
+   * помощью метода convert.
+   * @param array $params [optional] Параметры, заполняющие токены запроса.
+   *
+   * @throws \PDOException Выбрасывается в случае возникновения ошибки при 
+   * выполнении запроса.
+   *
+   * @return int Число строк, затронутых условием отбора.
+   */
+  protected function count($condition, array $params = []){
+    $select = $this->countSql . ' ' . $condition;
+
+    $hash = md5($select);
+    if(!isset($this->selectStatements[$hash])){
+      $this->selectStatements[$hash] = $this->pdo()->prepare($this->countSql . ' ' . $this->convert($condition));
+    }
+
+    $selectStatement = $this->selectStatements[$hash];
+    if(!$selectStatement->execute($params)){
+      throw new \PDOException($selectStatement->errorInfo(), $selectStatement->errorCode());
+    }
+
+    return $selectStatement->fetchObject()->count;
+  }
+
+  /**
    * @param \PDO PDO адаптер.
    * @param string $table Имя целевой таблицы.
    * @param array $scheme Схема преобразования полей целевой таблицы. В качестве 
@@ -205,6 +242,10 @@ class Mapper{
       return $field . ' AS ' . $property;
     }, $fields, $properties)) . ' FROM ' . $table;
     $this->selectSql = $sql;
+
+    // Count statement
+    $sql = 'SELECT COUNT(*) AS count FROM ' . $table;
+    $this->countSql = $sql;
 
     // Fetch statement
     $this->fetchStatement = $pdo->prepare($this->selectSql . ' WHERE ' . $idField . ' = :id');
