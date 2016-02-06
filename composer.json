@@ -1,6 +1,6 @@
 {
     "name": "bashka/bricks_storage_relation_mapper",
-    "version": "1.4",
+    "version": "1.5",
     "description": "Объектно-реляционное преобразование данных",
     "license": "GNU-3.0",
     "authors": [

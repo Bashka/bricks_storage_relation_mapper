@@ -269,9 +269,13 @@ class Mapper{
    * Определение прототипа сущности. На основе данного класса будут создаваться 
    * результирующие данные методов fetch и select экземпляра класса.
    *
-   * @param string $prototype Имя класса-прототипа.
+   * @param string $prototype [optional] Имя класса-прототипа.
    */
-  public function prototype($prototype){
+  public function prototype($prototype = null){
+    if(is_null($prototype)){
+      return $this->prototype;
+    }
+
     $this->prototype = $prototype;
   }
 
@@ -302,6 +306,9 @@ class Mapper{
    * идентификатора.
    * @throws \PDOException Выбрасывается в случае возникновения ошибки при 
    * выполнении запроса.
+   *
+   * @return Entity|null Восстановленная сущность или null - если найти 
+   * состояние сущности по данному идентификатору неудалось.
    */
   public function fetch($id){
     if(!$this->fetchStatement->execute(['id' => $id])){
